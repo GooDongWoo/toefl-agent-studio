@@ -1,0 +1,26 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# TOEFL Agent Studio Runtime Session Logs & Personal Weakness Log
+sessions/*
+!sessions/.gitkeep
+data/my_weakness_log.json
+data/weakness_log.json
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

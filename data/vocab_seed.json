@@ -1,0 +1,242 @@
+[
+  {
+    "id": "day01_001",
+    "day": 1,
+    "word": "ambiguous",
+    "pos": "adjective",
+    "meaning_ko": "모호한, 다의적인",
+    "synonyms": ["vague", "equivocal", "obscure"],
+    "example": "The author's ambiguous phrasing led to multiple interpretations among literary critics.",
+    "collocations": ["ambiguous wording", "ambiguous statement", "remain ambiguous"]
+  },
+  {
+    "id": "day01_002",
+    "day": 1,
+    "word": "anomalous",
+    "pos": "adjective",
+    "meaning_ko": "변칙적인, 이례적인",
+    "synonyms": ["atypical", "abnormal", "irregular"],
+    "example": "Scientists discovered anomalous temperature readings in the arctic expedition data.",
+    "collocations": ["anomalous result", "anomalous behavior", "anomalous data"]
+  },
+  {
+    "id": "day01_003",
+    "day": 1,
+    "word": "arbitrary",
+    "pos": "adjective",
+    "meaning_ko": "임의적인, 독단적인",
+    "synonyms": ["capricious", "random", "whimsical"],
+    "example": "Critics argued that the grading criteria seemed entirely arbitrary rather than standardized.",
+    "collocations": ["arbitrary decision", "arbitrary rule", "seemingly arbitrary"]
+  },
+  {
+    "id": "day01_004",
+    "day": 1,
+    "word": "assuage",
+    "pos": "verb",
+    "meaning_ko": "완화하다, 달래다",
+    "synonyms": ["alleviate", "soothe", "mitigate"],
+    "example": "The university provost attempted to assuage student concerns regarding tuition hikes.",
+    "collocations": ["assuage concerns", "assuage fears", "assuage guilt"]
+  },
+  {
+    "id": "day01_005",
+    "day": 1,
+    "word": "comprehensive",
+    "pos": "adjective",
+    "meaning_ko": "포괄적인, 종합적인",
+    "synonyms": ["exhaustive", "thorough", "extensive"],
+    "example": "The professor assigned a comprehensive review of modern geopolitical conflicts.",
+    "collocations": ["comprehensive study", "comprehensive review", "comprehensive guide"]
+  },
+  {
+    "id": "day01_006",
+    "day": 1,
+    "word": "constitute",
+    "pos": "verb",
+    "meaning_ko": "구성하다, ~으로 여겨지다",
+    "synonyms": ["comprise", "form", "represent"],
+    "example": "Renewable energy sources now constitute a substantial portion of the national grid.",
+    "collocations": ["constitute a threat", "constitute a violation", "constitute a majority"]
+  },
+  {
+    "id": "day02_001",
+    "day": 2,
+    "word": "correlation",
+    "pos": "noun",
+    "meaning_ko": "연관성, 상관관계",
+    "synonyms": ["association", "connection", "link"],
+    "example": "The study revealed a strong positive correlation between sleep duration and cognitive performance.",
+    "collocations": ["positive correlation", "strong correlation", "direct correlation"]
+  },
+  {
+    "id": "day02_002",
+    "day": 2,
+    "word": "differentiate",
+    "pos": "verb",
+    "meaning_ko": "구별하다, 차별화하다",
+    "synonyms": ["distinguish", "discriminate", "separate"],
+    "example": "It is crucial to differentiate between causation and statistical correlation in research.",
+    "collocations": ["differentiate between", "clearly differentiate", "differentiate oneself"]
+  },
+  {
+    "id": "day02_003",
+    "day": 2,
+    "word": "discrepancy",
+    "pos": "noun",
+    "meaning_ko": "불일치, 차이",
+    "synonyms": ["inconsistency", "divergence", "disparity"],
+    "example": "Auditors noted a significant discrepancy between the company's ledger and actual bank receipts.",
+    "collocations": ["significant discrepancy", "glaring discrepancy", "reconcile a discrepancy"]
+  },
+  {
+    "id": "day02_004",
+    "day": 2,
+    "word": "eradicate",
+    "pos": "verb",
+    "meaning_ko": "근절하다, 뿌리뽑다",
+    "synonyms": ["eliminate", "extirpate", "abolish"],
+    "example": "Public health initiatives aimed to eradicate the infectious disease through widespread vaccination.",
+    "collocations": ["eradicate disease", "eradicate poverty", "completely eradicate"]
+  },
+  {
+    "id": "day02_005",
+    "day": 2,
+    "word": "exemplify",
+    "pos": "verb",
+    "meaning_ko": "전형적인 예가 되다, 예증하다",
+    "synonyms": ["illustrate", "embody", "epitomize"],
+    "example": "His architectural designs exemplify the minimalist aesthetic of the late twentieth century.",
+    "collocations": ["exemplify the trend", "best exemplify", "exemplify principles"]
+  },
+  {
+    "id": "day02_006",
+    "day": 2,
+    "word": "fluctuate",
+    "pos": "verb",
+    "meaning_ko": "변동하다, 요동치다",
+    "synonyms": ["oscillate", "vary", "waver"],
+    "example": "Global commodity prices fluctuate depending on geopolitical stability and supply chain shocks.",
+    "collocations": ["fluctuate wildly", "fluctuate between", "prices fluctuate"]
+  },
+  {
+    "id": "day03_001",
+    "day": 3,
+    "word": "imply",
+    "pos": "verb",
+    "meaning_ko": "암시하다, 넌지시 나타내다",
+    "synonyms": ["insinuate", "suggest", "indicate"],
+    "example": "The survey results imply that consumer confidence has begun to rebound after the recession.",
+    "collocations": ["strongly imply", "seem to imply", "imply that"]
+  },
+  {
+    "id": "day03_002",
+    "day": 3,
+    "word": "inevitable",
+    "pos": "adjective",
+    "meaning_ko": "피할 수 없는, 불가피한",
+    "synonyms": ["unavoidable", "inescapable", "inexorable"],
+    "example": "Given rapid climate changes, sea level rise has become an inevitable challenge for coastal cities.",
+    "collocations": ["inevitable outcome", "inevitable result", "seem inevitable"]
+  },
+  {
+    "id": "day03_003",
+    "day": 3,
+    "word": "mitigate",
+    "pos": "verb",
+    "meaning_ko": "완화하다, 경감하다",
+    "synonyms": ["alleviate", "lessen", "attenuate"],
+    "example": "Engineers introduced flood barriers to mitigate the damage caused by seasonal typhoons.",
+    "collocations": ["mitigate risks", "mitigate the impact", "mitigate climate change"]
+  },
+  {
+    "id": "day03_004",
+    "day": 3,
+    "word": "peculiar",
+    "pos": "adjective",
+    "meaning_ko": "특이한, 독특한",
+    "synonyms": ["distinctive", "idiosyncratic", "unusual"],
+    "example": "The kangaroo possesses physiological traits that are peculiar to Australian marsupials.",
+    "collocations": ["peculiar feature", "peculiar behavior", "peculiar to"]
+  },
+  {
+    "id": "day03_005",
+    "day": 3,
+    "word": "pivotal",
+    "pos": "adjective",
+    "meaning_ko": "극히 중요한, 중추적인",
+    "synonyms": ["crucial", "critical", "decisive"],
+    "example": "The invention of the transistor played a pivotal role in the emergence of modern computing.",
+    "collocations": ["pivotal role", "pivotal moment", "pivotal turning point"]
+  },
+  {
+    "id": "day03_006",
+    "day": 3,
+    "word": "pragmatic",
+    "pos": "adjective",
+    "meaning_ko": "실용적인, 현실적인",
+    "synonyms": ["practical", "utilitarian", "functional"],
+    "example": "The diplomatic committee adopted a pragmatic approach to resolve the protracted border dispute.",
+    "collocations": ["pragmatic approach", "pragmatic solution", "pragmatic decision"]
+  },
+  {
+    "id": "day04_001",
+    "day": 4,
+    "word": "profound",
+    "pos": "adjective",
+    "meaning_ko": "심오한, 깊은, 엄청난",
+    "synonyms": ["deep", "immense", "far-reaching"],
+    "example": "Artificial intelligence is having a profound impact on labor economics and software development.",
+    "collocations": ["profound impact", "profound change", "profound effect"]
+  },
+  {
+    "id": "day04_002",
+    "day": 4,
+    "word": "scarcity",
+    "pos": "noun",
+    "meaning_ko": "부족, 결핍",
+    "synonyms": ["shortage", "dearth", "deficiency"],
+    "example": "Acute water scarcity forced local agricultural communities to adopt drip irrigation systems.",
+    "collocations": ["resource scarcity", "water scarcity", "scarcity of skilled labor"]
+  },
+  {
+    "id": "day04_003",
+    "day": 4,
+    "word": "substantiate",
+    "pos": "verb",
+    "meaning_ko": "입증하다, 실증하다",
+    "synonyms": ["corroborate", "validate", "verify"],
+    "example": "The research team presented empirical data to substantiate their groundbreaking hypothesis.",
+    "collocations": ["substantiate the claim", "substantiate a hypothesis", "evidence to substantiate"]
+  },
+  {
+    "id": "day04_004",
+    "day": 4,
+    "word": "ubiquitous",
+    "pos": "adjective",
+    "meaning_ko": "어디에나 있는, 흔한",
+    "synonyms": ["omnipresent", "pervasive", "universal"],
+    "example": "Smartphones have become ubiquitous across all demographics over the past two decades.",
+    "collocations": ["ubiquitous presence", "become ubiquitous", "ubiquitous technology"]
+  },
+  {
+    "id": "day04_005",
+    "day": 4,
+    "word": "unprecedented",
+    "pos": "adjective",
+    "meaning_ko": "전례 없는, 유례없는",
+    "synonyms": ["unmatched", "extraordinary", "unparalleled"],
+    "example": "The company achieved an unprecedented growth rate after launching its subscription platform.",
+    "collocations": ["unprecedented scale", "unprecedented growth", "unprecedented challenge"]
+  },
+  {
+    "id": "day04_006",
+    "day": 4,
+    "word": "viable",
+    "pos": "adjective",
+    "meaning_ko": "실행 가능한, 생존 가능한",
+    "synonyms": ["feasible", "workable", "sustainable"],
+    "example": "Solar energy has emerged as a commercially viable alternative to conventional fossil fuels.",
+    "collocations": ["viable alternative", "economically viable", "commercially viable"]
+  }
+]

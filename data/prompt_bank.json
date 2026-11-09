@@ -1,0 +1,182 @@
+{
+  "write_an_email": [
+    {
+      "id": "email_001",
+      "title": "Request for Paper Deadline Extension",
+      "scenario": "You are taking an Environmental Science course. The lab equipment required for soil sample analysis malfunctioned over the weekend, delaying your final dataset. You need to write an email to Professor Harrison explaining the situation, requesting a two-day extension, and outlining how you will complete the paper.",
+      "recipient": "Professor Harrison (pharrison@university.edu)",
+      "subject": "Request for Extension on Environmental Science Research Paper",
+      "bullet_points": [
+        "Explain why the soil analysis was delayed due to instrument failure.",
+        "Request a specific two-day extension until Thursday afternoon.",
+        "Describe the immediate steps you are taking to finish the draft promptly."
+      ],
+      "sample_answer": "Dear Professor Harrison,\n\nI hope this email finds you well. I am writing to respectfully request a short two-day extension on our Environmental Science final research paper, originally due this Tuesday.\n\nOver the weekend, the spectrometry equipment in the science laboratory experienced an unexpected malfunction while I was processing my final soil samples. As a result, the technician had to recalibrate the device, which prevented me from obtaining the crucial data points needed for my discussion section.\n\nThe equipment is now back in operation, and I have already gathered the remaining measurements. If granted until Thursday at 5:00 PM, I will be able to complete the data analysis and submit a rigorous paper. Thank you for your understanding and consideration.\n\nBest regards,\nAlex Chen"
+    },
+    {
+      "id": "email_002",
+      "title": "Housing Office Inquiry Regarding Room Transfer",
+      "scenario": "You currently live in West Hall dormitory with a roommate whose study schedule clashes significantly with your early morning classes. You need to write an email to the Residential Life Coordinator inquiring about mid-semester room transfer options, describing your situation courteously, and asking about next steps.",
+      "recipient": "Ms. Linda Ramirez, Residential Life Coordinator (housing@university.edu)",
+      "subject": "Inquiry Regarding Mid-Semester Room Transfer Procedure",
+      "bullet_points": [
+        "Describe the scheduling conflict and efforts made to resolve it mutually.",
+        "Inquire whether single rooms or compatible vacancies exist in West or East Hall.",
+        "Ask about required paperwork and timeline for processing a room switch."
+      ],
+      "sample_answer": "Dear Ms. Ramirez,\n\nI am currently a sophomore residing in room 312 of West Hall. I am writing to politely inquire about the availability of a mid-semester room transfer.\n\nMy roommate and I maintain drastically opposing academic schedules; my laboratory courses require me to wake up at 6:00 AM, whereas my roommate attends late-night study groups until 3:00 AM. Despite discussing quiet hours and establishing compromise rules, our differing schedules continue to disrupt our sleep and coursework.\n\nCould you please let me know if there are any single rooms or compatible vacancies available in West or East Hall? Furthermore, I would appreciate guidance on the necessary paperwork or meeting schedule to formally request a transfer. Thank you for your time and assistance.\n\nSincerely,\nJordan Taylor"
+    },
+    {
+      "id": "email_003",
+      "title": "Volunteer Application for Sustainability Fair",
+      "scenario": "The campus Office of Sustainability is hosting an annual Earth Week Fair. You want to offer your help as a student volunteer coordinator, highlighting your prior event management experience and flexible afternoon availability.",
+      "recipient": "Dr. Sarah Jenkins, Director of Sustainability (sustainability@university.edu)",
+      "subject": "Volunteer Availability for Campus Sustainability Fair",
+      "bullet_points": [
+        "Express enthusiastic interest in assisting with the Earth Week Fair setup.",
+        "Highlight relevant experience organizing student events or recycling drives.",
+        "Specify your weekday afternoon availability and offer to attend volunteer orientation."
+      ],
+      "sample_answer": "Dear Dr. Jenkins,\n\nI am writing to express my eager interest in volunteering for the upcoming Earth Week Fair organized by the Office of Sustainability.\n\nLast year, I served as a team lead for our student union's recycling campaign, where I coordinated logistics, managed booth assignments, and answered attendee questions. I would love to bring this event management experience to support booth setup and participant registration at the fair.\n\nI am fully available on weekday afternoons after 1:00 PM and throughout the entire weekend of the event. Please let me know the dates for the volunteer orientation or if you need any additional background information. Thank you for championing sustainability on our campus.\n\nWarm regards,\nTaylor Kim"
+    }
+  ],
+  "academic_discussion": [
+    {
+      "id": "acad_001",
+      "course": "Organizational Behavior & Business Management",
+      "professor_question": "Many corporations are currently deciding whether to mandate a full return to physical offices or maintain flexible remote working policies. From an organizational perspective, do you believe businesses benefit more from fully in-person offices or from allowing flexible remote work? Give reasons to support your view.",
+      "student_a": {
+        "name": "Marcus",
+        "stance": "In-person work is vital because face-to-face interactions foster spontaneous creativity, stronger corporate culture, and faster mentorship for junior employees."
+      },
+      "student_b": {
+        "name": "Amina",
+        "stance": "Flexible remote work boosts overall productivity by eliminating stressful commutes, giving employees autonomy, and allowing firms to hire global talent."
+      },
+      "sample_answer": "While Marcus rightly points out the value of spontaneous hallway brainstorming in physical offices, I firmly agree with Amina that flexible remote work offers superior benefits for modern organizations. First, eliminating lengthy daily commutes substantially reduces employee burnout and enhances work-life balance, directly translating into higher sustained productivity and job satisfaction. Furthermore, remote work policies empower companies to recruit top-tier talent regardless of geographic limitations, fostering diverse and highly specialized teams. Rather than enforcing an all-or-nothing office mandate, companies that embrace flexible arrangements cultivate a culture of trust and objective performance measurement, ultimately driving greater innovation and long-term retention."
+    },
+    {
+      "id": "acad_002",
+      "course": "Urban Planning & Environmental Policy",
+      "professor_question": "To curb urban greenhouse gas emissions, municipal governments must allocate limited budgets. Should cities prioritize subsidizing electric passenger vehicles or expanding public transit infrastructure (such as light rail and electric buses)? Explain your position.",
+      "student_a": {
+        "name": "Carlos",
+        "stance": "Subsidizing electric cars accelerates private adoption, directly replacing gasoline emissions without requiring billions in new rail infrastructure."
+      },
+      "student_b": {
+        "name": "Elena",
+        "stance": "Expanding public transit is far more equitable and sustainable because electric cars still cause traffic congestion and require significant raw mineral extraction."
+      },
+      "sample_answer": "Although Carlos makes a reasonable point that electric vehicle subsidies expedite private fleet electrification, I share Elena's perspective that expanding public transit infrastructure is the far more prudent strategy. Subsidizing private electric vehicles fails to address systemic urban challenges such as worsening traffic congestion, spatial segregation, and road maintenance expenses. In contrast, comprehensive investment in electric bus networks and high-capacity light rail democratizes mobility for lower-income residents who cannot afford private automobiles. Moreover, high-density transit corridors encourage compact urban development, which fundamentally lowers energy consumption per capita far more effectively than merely replacing gasoline engines with batteries."
+    },
+    {
+      "id": "acad_003",
+      "course": "Philosophy of Education & Technology",
+      "professor_question": "Generative artificial intelligence tools can now draft essays, summarize complex literature, and solve mathematical proofs. Should universities strictly restrict generative AI use to preserve traditional critical thinking, or should they actively integrate AI tools into coursework and evaluation?",
+      "student_a": {
+        "name": "David",
+        "stance": "AI should be restricted in introductory coursework because over-reliance on automated tools prevents students from developing foundational writing, reasoning, and research skills."
+      },
+      "student_b": {
+        "name": "Sophia",
+        "stance": "Universities must integrate AI immediately since students will inevitably use these tools in their professional careers, making AI literacy an essential modern competency."
+      },
+      "sample_answer": "While David raises a legitimate concern regarding the risk of cognitive atrophy if students bypass foundational research exercises, I align with Sophia in advocating for proactive integration over blanket bans. In modern professional environments, generative AI operates as an ubiquitous cognitive amplifier; therefore, universities do students a disservice if they fail to cultivate prompt engineering, critical fact-checking, and ethical oversight. Rather than assigning generic summary essays that AI can trivially solve, educators can design assignments requiring students to critically critique AI-generated arguments, identify hallucinations, and defend refined analytical theses. By integrating AI into coursework, institutions foster true digital literacy while preserving rigorous intellectual inquiry."
+    }
+  ],
+  "build_a_sentence": [
+    {
+      "id": "sentence_001",
+      "context_sentence": "Researchers discovered that urban green spaces not only reduce local temperatures but also significantly enhance community psychological well-being.",
+      "scrambled_chunks": [
+        "not only reduce",
+        "urban green spaces",
+        "local temperatures",
+        "psychological well-being",
+        "significantly enhance community",
+        "but also"
+      ],
+      "answer": "Urban green spaces not only reduce local temperatures but also significantly enhance community psychological well-being."
+    },
+    {
+      "id": "sentence_002",
+      "context_sentence": "Had the engineering committee analyzed the seismic data more comprehensively, the structural reinforcement could have been completed before the earthquake.",
+      "scrambled_chunks": [
+        "the engineering committee",
+        "Had",
+        "analyzed the seismic data",
+        "the structural reinforcement",
+        "more comprehensively,",
+        "could have been completed",
+        "before the earthquake."
+      ],
+      "answer": "Had the engineering committee analyzed the seismic data more comprehensively, the structural reinforcement could have been completed before the earthquake."
+    },
+    {
+      "id": "sentence_003",
+      "context_sentence": "It was the unprecedented discrepancy in quarterly revenues that prompted independent auditors to investigate the accounting practices.",
+      "scrambled_chunks": [
+        "prompted independent auditors",
+        "It was",
+        "in quarterly revenues",
+        "that",
+        "the unprecedented discrepancy",
+        "to investigate the accounting practices."
+      ],
+      "answer": "It was the unprecedented discrepancy in quarterly revenues that prompted independent auditors to investigate the accounting practices."
+    }
+  ],
+  "take_an_interview": [
+    {
+      "id": "interview_001",
+      "topic": "Campus Career Center & Internship Preparation",
+      "context": "You are participating in an interactive mock interview with a university career advisor regarding your summer internship plans.",
+      "questions": [
+        "Could you introduce yourself and tell me what field of study or industry you are aiming to enter this summer?",
+        "What specific academic project or coursework best prepared you for practical challenges in this field?",
+        "Can you describe a situation where you had to collaborate with a difficult team member, and how you resolved the conflict?",
+        "Looking ahead, what skills do you hope to develop most during your internship experience?"
+      ],
+      "model_expressions": [
+        "I am currently majoring in...",
+        "A pivotal project that shaped my understanding was...",
+        "To resolve the conflict, I initiated an open discussion to align our priorities...",
+        "I am particularly eager to hone my skills in..."
+      ]
+    },
+    {
+      "id": "interview_002",
+      "topic": "International Exchange Program Admission Interview",
+      "context": "You are interviewing with the international exchange committee for a semester-long academic program abroad.",
+      "questions": [
+        "Why did you choose our specific partner university for your exchange semester?",
+        "How do you plan to handle potential language barriers and cultural adjustments during your stay?",
+        "Could you share an example of an unexpected problem you encountered while traveling or studying, and how you handled it?",
+        "How will this international experience contribute to your long-term academic and career aspirations?"
+      ],
+      "model_expressions": [
+        "The institution's curriculum offers specialized coursework in...",
+        "I plan to actively immerse myself in the local community by...",
+        "When faced with the unexpected challenge, I maintained a pragmatic approach...",
+        "This immersive exchange will broaden my global perspective and equip me to..."
+      ]
+    },
+    {
+      "id": "interview_003",
+      "topic": "Undergraduate Research Assistant Application",
+      "context": "You are being interviewed by a faculty lab director for a research assistant position in computational linguistics.",
+      "questions": [
+        "What motivated you to apply for a research assistant position in our laboratory?",
+        "What experience do you have with data collection, statistical analysis, or programming tools?",
+        "Research frequently involves anomalous or ambiguous experimental results; how do you approach troubleshooting failed experiments?",
+        "How do you plan to balance rigorous laboratory commitments alongside your regular coursework?"
+      ],
+      "model_expressions": [
+        "I have followed your laboratory's recent publications on...",
+        "I have practical experience utilizing Python and statistical libraries to...",
+        "When encountering anomalous data, I methodically isolate variables to identify...",
+        "I utilize disciplined time management and proactive milestone tracking to..."
+      ]
+    }
+  ]
+}
