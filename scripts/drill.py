@@ -24,6 +24,7 @@ SESSIONS_DIR = REPO_ROOT / "sessions"
 VOCAB_SEED_PATH = DATA_DIR / "vocab_seed.json"
 PROMPT_BANK_PATH = DATA_DIR / "prompt_bank.json"
 WEAKNESS_LOG_PATH = DATA_DIR / "my_weakness_log.json"
+VALID_SECTIONS = ("core", "band5", "band6")
 
 
 # ----------------------------------------------------------------------
@@ -356,40 +357,292 @@ def _load_json_file(file_path: Path) -> Any:
     return json.loads(file_path.read_text(encoding="utf-8"))
 
 
+def _section_sort_key(item: Dict[str, Any]) -> tuple[int, str]:
+    sec = item.get("section", "")
+    rank = VALID_SECTIONS.index(sec) if sec in VALID_SECTIONS else len(VALID_SECTIONS)
+    return (rank, item.get("id", item.get("word", "")))
+
+
+def _enrich_item_for_drill(item: Dict[str, Any], is_review: bool = False) -> Dict[str, Any]:
+    word = item.get("word", "")
+    example = item.get("example", "")
+    enriched = {
+        "id": item.get("id", ""),
+        "day": item.get("day"),
+        "section": item.get("section", ""),
+        "word": word,
+        "pos": item.get("pos", ""),
+        "meaning_ko": item.get("meaning_ko", ""),
+        "synonyms": item.get("synonyms", []),
+        "example": example,
+        "masked_example": mask_word_in_sentence(example, word) if example else "",
+        "collocations": item.get("collocations", []),
+        "is_review": is_review,
+    }
+    if is_review:
+        enriched["error_count"] = item.get("error_count", 1)
+        enriched["streak"] = item.get("streak", 0)
+    return enriched
+
+
+def select_daily_vocab(
+    vocab_items: List[Dict[str, Any]],
+    log_data: Dict[str, Any],
+    day: Optional[int] = None,
+    section: Optional[str] = None,
+    count: int = 20,
+    max_review: int = 5,
+    include_review: bool = True,
+) -> Dict[str, Any]:
+    """Select today's fresh words (ordered by tier) and capped active review words."""
+    max_day = max((int(v.get("day", 1)) for v in vocab_items if isinstance(v.get("day"), int)), default=1)
+    current_day = int(log_data.get("vocab_progress", {}).get("current_day", 1) or 1)
+    target_day = day if day is not None else min(current_day, max_day)
+
+    seed_by_word = {v["word"].strip().lower(): v for v in vocab_items if v.get("word")}
+
+    if section is not None:
+        if day is not None:
+            candidates = [
+                v for v in vocab_items
+                if v.get("day") == target_day and v.get("section") == section
+            ]
+        else:
+            candidates = [
+                v for v in vocab_items
+                if v.get("section") == section and int(v.get("day", 1)) >= target_day
+            ]
+            if len(candidates) < count:
+                earlier = [
+                    v for v in vocab_items
+                    if v.get("section") == section and int(v.get("day", 1)) < target_day
+                ]
+                candidates.extend(earlier)
+    else:
+        candidates = [v for v in vocab_items if v.get("day") == target_day]
+        candidates.sort(key=_section_sort_key)
+
+    fresh_raw = candidates[: max(0, count)]
+    fresh_items = [_enrich_item_for_drill(v, is_review=False) for v in fresh_raw]
+    fresh_words = {v["word"].strip().lower() for v in fresh_items}
+
+    review_items: List[Dict[str, Any]] = []
+    if include_review and max_review > 0:
+        active_missed = [
+            m for m in log_data.get("missed_vocab", [])
+            if not m.get("mastered", False)
+            and m.get("word", "").strip().lower() not in fresh_words
+        ]
+        if section is not None:
+            active_missed = [
+                m for m in active_missed
+                if (m.get("section") or seed_by_word.get(m["word"].strip().lower(), {}).get("section")) == section
+            ]
+        active_missed.sort(
+            key=lambda m: (int(m.get("error_count", 0)), m.get("last_missed", "")),
+            reverse=True,
+        )
+        for m in active_missed[:max_review]:
+            w_lower = m["word"].strip().lower()
+            seed_match = seed_by_word.get(w_lower)
+            if seed_match:
+                merged = dict(seed_match)
+                merged["error_count"] = m.get("error_count", 1)
+                merged["streak"] = m.get("streak", 0)
+                review_items.append(_enrich_item_for_drill(merged, is_review=True))
+            else:
+                review_items.append(
+                    _enrich_item_for_drill(
+                        {
+                            "word": m["word"],
+                            "meaning_ko": m.get("meaning_ko", ""),
+                            "section": m.get("section", ""),
+                            "error_count": m.get("error_count", 1),
+                            "streak": m.get("streak", 0),
+                        },
+                        is_review=True,
+                    )
+                )
+
+    section_counts = {sec: sum(1 for x in fresh_items if x.get("section") == sec) for sec in VALID_SECTIONS}
+    return {
+        "day": target_day,
+        "max_day": max_day,
+        "section_filter": section,
+        "fresh_items": fresh_items,
+        "review_items": review_items,
+        "counts": {
+            "fresh": len(fresh_items),
+            "review": len(review_items),
+            "total": len(fresh_items) + len(review_items),
+            "by_section": section_counts,
+        },
+    }
+
+
+def _print_vocab_bundle(bundle: Dict[str, Any]) -> None:
+    day_label = f"Day {bundle['day']} / {bundle['max_day']}"
+    sec_label = bundle["section_filter"] or "All Sections (Core + Band 5.0 + Band 6.0)"
+    counts = bundle["counts"]
+    print(f"\n=== TOEFL Daily Vocabulary ({day_label} | {sec_label}) ===")
+    print(f"Fresh: {counts['fresh']} | Review: {counts['review']} | Total: {counts['total']}\n")
+
+    idx = 1
+    for sec in VALID_SECTIONS:
+        sec_items = [x for x in bundle["fresh_items"] if x.get("section") == sec]
+        if not sec_items:
+            continue
+        print(f"--- Section: {sec.upper()} ({len(sec_items)}) ---")
+        for item in sec_items:
+            syns = ", ".join(item.get("synonyms", []))
+            print(f"{idx}. [{item.get('pos', '')}] {item['word']} — {item.get('meaning_ko', '')}")
+            print(f"   CTEST: {item['masked_example']}")
+            print(f"   Synonyms: {syns}")
+            idx += 1
+        print()
+
+    if bundle["review_items"]:
+        print(f"--- Active Review ({len(bundle['review_items'])}) ---")
+        for item in bundle["review_items"]:
+            tag = (item.get("section") or "review").upper()
+            print(
+                f"{idx}. [REVIEW:{tag}] {item['word']} (Errors: {item.get('error_count', 1)}, "
+                f"Streak: {item.get('streak', 0)}/2) — {item.get('meaning_ko', '')}"
+            )
+            if item.get("masked_example"):
+                print(f"   CTEST: {item['masked_example']}")
+            idx += 1
+        print()
+
+
+def cmd_today(args: argparse.Namespace) -> None:
+    """Handle 'today' subcommand: output daily 20 fresh + up to 5 active review words."""
+    vocab_items: List[Dict[str, Any]] = _load_json_file(VOCAB_SEED_PATH)
+    log_data = load_weakness_log(WEAKNESS_LOG_PATH)
+
+    bundle = select_daily_vocab(
+        vocab_items=vocab_items,
+        log_data=log_data,
+        day=args.day,
+        section=args.section,
+        count=args.count,
+        max_review=0 if args.no_review else args.max_review,
+        include_review=not args.no_review,
+    )
+
+    if args.complete and bundle["fresh_items"] and args.section is None:
+        today_iso = datetime.now().strftime("%Y-%m-%d")
+        mark_day_completed(WEAKNESS_LOG_PATH, bundle["day"], bundle["max_day"], today_iso)
+
+    if args.json:
+        print(json.dumps(bundle, ensure_ascii=False, indent=2))
+    else:
+        _print_vocab_bundle(bundle)
+
+
+def cmd_record_vocab(args: argparse.Namespace) -> None:
+    """Handle 'record-vocab' subcommand: atomically log missed, passed, and day completion."""
+    vocab_items: List[Dict[str, Any]] = _load_json_file(VOCAB_SEED_PATH)
+    seed_by_word = {v["word"].strip().lower(): v for v in vocab_items if v.get("word")}
+    max_day = max((int(v.get("day", 1)) for v in vocab_items if isinstance(v.get("day"), int)), default=1)
+    today_iso = datetime.now().strftime("%Y-%m-%d")
+
+    missed_list = args.missed or []
+    passed_list = args.passed or []
+
+    for w in missed_list:
+        meta = seed_by_word.get(w.strip().lower(), {})
+        record_missed_vocab(
+            WEAKNESS_LOG_PATH,
+            w.strip(),
+            meta.get("meaning_ko", ""),
+            today_iso,
+            section=meta.get("section", ""),
+        )
+
+    for w in passed_list:
+        record_correct_vocab(WEAKNESS_LOG_PATH, w.strip())
+
+    if args.complete_day is not None:
+        mark_day_completed(WEAKNESS_LOG_PATH, args.complete_day, max_day, today_iso)
+
+    updated = load_weakness_log(WEAKNESS_LOG_PATH)
+    progress = updated["vocab_progress"]
+    active_cnt = sum(1 for m in updated["missed_vocab"] if not m.get("mastered", False))
+    mastered_cnt = sum(1 for m in updated["missed_vocab"] if m.get("mastered", False))
+    print(
+        f"Recorded vocab update: missed={len(missed_list)}, passed={len(passed_list)}, "
+        f"current_day={progress['current_day']}/{max_day}, "
+        f"active_missed={active_cnt}, mastered={mastered_cnt}"
+    )
+
+
 def cmd_ctest(args: argparse.Namespace) -> None:
     """Handle 'ctest' subcommand: Complete the Words drill."""
     vocab_items: List[Dict[str, Any]] = _load_json_file(VOCAB_SEED_PATH)
+    log_data = load_weakness_log(WEAKNESS_LOG_PATH)
 
-    if args.day is not None:
-        vocab_items = [v for v in vocab_items if v.get("day") == args.day]
+    if args.review:
+        bundle = select_daily_vocab(
+            vocab_items=vocab_items,
+            log_data=log_data,
+            day=args.day,
+            section=args.section,
+            count=0,
+            max_review=args.count,
+            include_review=True,
+        )
+        selected = [x for x in bundle["review_items"] if x.get("example")]
+        mode_label = "Active Review Only"
+    else:
+        bundle = select_daily_vocab(
+            vocab_items=vocab_items,
+            log_data=log_data,
+            day=args.day,
+            section=args.section,
+            count=args.count,
+            max_review=0 if args.no_review else 5,
+            include_review=not args.no_review,
+        )
+        selected = bundle["fresh_items"] + bundle["review_items"]
+        mode_label = f"Day {bundle['day']}"
 
-    if not vocab_items:
-        print(f"No vocabulary items found for day {args.day}.")
+    if not selected:
+        print("No matching vocabulary items found.")
         return
 
-    selected = vocab_items[: args.count]
+    if args.json:
+        print(json.dumps({"mode": mode_label, "items": selected}, ensure_ascii=False, indent=2))
+        return
+
     today_iso = datetime.now().strftime("%Y-%m-%d")
 
     if args.interactive:
-        print(f"\n=======================================================")
-        print(f" TOEFL Complete the Words Drill (Interactive Quiz)")
-        print(f" Items: {len(selected)} | Day: {args.day or 'All'}")
-        print(f"=======================================================\n")
+        print("\n=======================================================")
+        print(" TOEFL Complete the Words Drill (Interactive Quiz)")
+        print(f" Items: {len(selected)} | Scope: {mode_label} | Section: {args.section or 'All'}")
+        print("=======================================================\n")
         score = 0
+        interrupted = False
         for i, item in enumerate(selected, 1):
             word = item["word"]
-            masked = mask_word_in_sentence(item["example"], word)
-            print(f"[{i}/{len(selected)}] [{item.get('pos', '')}] {item.get('meaning_ko', '')}")
+            masked = item.get("masked_example") or mask_word_in_sentence(item["example"], word)
+            sec_badge = (item.get("section") or "general").upper()
+            rev_badge = " [REVIEW]" if item.get("is_review") else ""
+            print(f"[{i}/{len(selected)}] [{sec_badge}]{rev_badge} [{item.get('pos', '')}] {item.get('meaning_ko', '')}")
             print(f"Context: {masked}")
             try:
                 user_ans = input("Your answer: ").strip()
             except (EOFError, KeyboardInterrupt):
                 print("\nQuiz interrupted.")
+                interrupted = True
                 break
 
             if user_ans.lower() == word.lower():
                 print(" -> [CORRECT]\n")
                 score += 1
+                if item.get("is_review"):
+                    record_correct_vocab(WEAKNESS_LOG_PATH, word)
             else:
                 print(f" -> [INCORRECT] Correct answer: {word}\n")
                 record_missed_vocab(
@@ -397,19 +650,24 @@ def cmd_ctest(args: argparse.Namespace) -> None:
                     word,
                     item.get("meaning_ko", ""),
                     today_iso,
+                    section=item.get("section", ""),
                 )
+
+        if not interrupted and not args.review and args.section is None and bundle["fresh_items"]:
+            mark_day_completed(WEAKNESS_LOG_PATH, bundle["day"], bundle["max_day"], today_iso)
 
         print(f"--- Drill Complete: {score}/{len(selected)} correct ---")
         if score < len(selected):
             print(f"Missed words logged to {WEAKNESS_LOG_PATH}")
     else:
-        day_str = f"Day {args.day}" if args.day is not None else "All Days"
-        print(f"\n=== TOEFL Complete the Words Drill ({day_str}, Count: {len(selected)}) ===\n")
+        print(f"\n=== TOEFL Complete the Words Drill ({mode_label}, Count: {len(selected)}) ===\n")
         for i, item in enumerate(selected, 1):
             word = item["word"]
-            masked = mask_word_in_sentence(item["example"], word)
+            masked = item.get("masked_example") or mask_word_in_sentence(item["example"], word)
             synonyms = ", ".join(item.get("synonyms", []))
-            print(f"{i}. [{item.get('pos', '')}] {item.get('meaning_ko', '')}")
+            sec_badge = (item.get("section") or "general").upper()
+            rev_badge = " [REVIEW]" if item.get("is_review") else ""
+            print(f"{i}. [{sec_badge}]{rev_badge} [{item.get('pos', '')}] {item.get('meaning_ko', '')}")
             print(f"   Context: {masked}")
             print(f"   Answer:  {word} (Synonyms: {synonyms})")
             print()
@@ -450,7 +708,6 @@ def cmd_new_session(args: argparse.Namespace) -> None:
             print(f"Prompt with id '{args.id}' not found in category '{category_key}'.")
             sys.exit(1)
     else:
-        # Default to first available prompt
         selected_prompt = prompts[0]
 
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -461,7 +718,7 @@ def cmd_new_session(args: argparse.Namespace) -> None:
         now_str=now_str,
     )
 
-    print(f"Created new practice session:")
+    print("Created new practice session:")
     print(f"  File: {out_path}")
     print(f"  Type: {args.type}")
     print(f"  Prompt ID: {selected_prompt.get('id')}")
@@ -490,43 +747,67 @@ def cmd_check(args: argparse.Namespace) -> None:
 
 
 def cmd_stats(args: argparse.Namespace) -> None:
-    """Handle 'stats' subcommand: summary of weaknesses and completed sessions."""
+    """Handle 'stats' subcommand: summary of vocab progress, weaknesses, and sessions."""
     print("=======================================================")
     print(" TOEFL Agent Studio Progress & Weakness Summary")
     print("=======================================================")
 
-    # Weakness Log Stats
+    max_day = 1
+    section_totals: Dict[str, int] = {}
+    if VOCAB_SEED_PATH.exists():
+        try:
+            vocab_items = _load_json_file(VOCAB_SEED_PATH)
+            max_day = max((int(v.get("day", 1)) for v in vocab_items if isinstance(v.get("day"), int)), default=1)
+            for v in vocab_items:
+                sec = v.get("section", "untagged")
+                section_totals[sec] = section_totals.get(sec, 0) + 1
+            print(f"\n[Vocabulary Bank]")
+            print(f"- Total Seed Words: {len(vocab_items)} ({max_day} Days)")
+            if section_totals:
+                sec_str = ", ".join(f"{k}: {v}" for k, v in sorted(section_totals.items()))
+                print(f"- Sections:         {sec_str}")
+        except Exception as e:
+            print(f"\n[Vocabulary Bank]: Error reading seed: {e}")
+
     if WEAKNESS_LOG_PATH.exists():
         try:
-            log_data = json.loads(WEAKNESS_LOG_PATH.read_text(encoding="utf-8"))
+            log_data = load_weakness_log(WEAKNESS_LOG_PATH)
             missed = log_data.get("missed_vocab", [])
             upgrades = log_data.get("expression_upgrades", [])
-            print(f"\n[Weakness Log]")
-            print(f"- Total Missed Words Tracked: {len(missed)}")
-            print(f"- Total Expression Upgrades:  {len(upgrades)}")
+            progress = log_data.get("vocab_progress", {})
+            active_missed = [m for m in missed if not m.get("mastered", False)]
+            mastered_missed = [m for m in missed if m.get("mastered", False)]
 
-            if missed:
+            print("\n[Vocab Progress & Weakness Log]")
+            print(f"- Current Day:         Day {progress.get('current_day', 1)} / {max_day}")
+            print(f"- Completed Days:      {len(progress.get('completed_days', []))} / {max_day}")
+            print(f"- Last Studied:        {progress.get('last_studied') or 'Never'}")
+            print(f"- Active Missed Words: {len(active_missed)} | Graduated (Mastered): {len(mastered_missed)}")
+            print(f"- Expression Upgrades: {len(upgrades)}")
+
+            if active_missed:
                 sorted_missed = sorted(
-                    missed, key=lambda x: x.get("error_count", 0), reverse=True
+                    active_missed, key=lambda x: x.get("error_count", 0), reverse=True
                 )
-                print("\n  Top Missed Words:")
-                for item in sorted_missed[:5]:
+                print("\n  Top Active Missed Words:")
+                for item in sorted_missed[:10]:
                     w = item.get("word", "")
                     cnt = item.get("error_count", 0)
+                    sec = item.get("section") or "-"
+                    streak = item.get("streak", 0)
                     m = item.get("meaning_ko", "")
                     last = item.get("last_missed", "")
-                    print(f"  * {w:<15} (Errors: {cnt}) - {m} [Last: {last}]")
+                    print(f"  * {w:<15} [{sec}] (Errors: {cnt}, Streak: {streak}/2) - {m} [Last: {last}]")
         except Exception as e:
             print(f"\n[Weakness Log]: Error reading log: {e}")
     else:
         print("\n[Weakness Log]: No weakness log found yet (data/my_weakness_log.json).")
 
-    # Session Stats
     if SESSIONS_DIR.exists():
         session_files = [
             f for f in SESSIONS_DIR.glob("*.md") if f.name != ".gitkeep"
         ]
-        print(f"\n[Practice Sessions]")
+        print("\n[Practice Sessions]")
         print(f"- Total Sessions Created: {len(session_files)}")
 
         if session_files:
@@ -566,14 +847,38 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    # Subcommand: today
+    parser_today = subparsers.add_parser(
+        "today", help="Fetch today's 20 fresh + up to 5 active review words"
+    )
+    parser_today.add_argument("--day", type=int, help="Target vocabulary day (default: current_day)")
+    parser_today.add_argument("--section", choices=VALID_SECTIONS, help="Filter by difficulty tier")
+    parser_today.add_argument("--count", type=int, default=20, help="Fresh item count (default: 20)")
+    parser_today.add_argument("--max-review", type=int, default=5, help="Max review items (default: 5)")
+    parser_today.add_argument("--no-review", action="store_true", help="Exclude missed review items")
+    parser_today.add_argument("--json", action="store_true", help="Output compact JSON for agent consumption")
+    parser_today.add_argument("--complete", action="store_true", help="Mark target day as completed")
+
+    # Subcommand: record-vocab
+    parser_rec = subparsers.add_parser(
+        "record-vocab", help="Record missed/passed vocab words and day completion"
+    )
+    parser_rec.add_argument("--missed", nargs="*", default=[], help="Words missed during drill")
+    parser_rec.add_argument("--passed", nargs="*", default=[], help="Review words answered correctly")
+    parser_rec.add_argument("--complete-day", type=int, help="Day number to mark completed")
+
     # Subcommand: ctest
     parser_ctest = subparsers.add_parser(
         "ctest", help="Run Complete the Words vocabulary drills"
     )
-    parser_ctest.add_argument("--day", type=int, help="Vocabulary day (1-4)")
+    parser_ctest.add_argument("--day", type=int, help="Vocabulary day (default: current_day)")
+    parser_ctest.add_argument("--section", choices=VALID_SECTIONS, help="Filter by tier (core, band5, band6)")
     parser_ctest.add_argument(
-        "--count", type=int, default=5, help="Number of drill items (default: 5)"
+        "--count", type=int, default=20, help="Number of fresh drill items (default: 20)"
     )
+    parser_ctest.add_argument("--review", action="store_true", help="Drill only active missed review words")
+    parser_ctest.add_argument("--no-review", action="store_true", help="Exclude review words")
+    parser_ctest.add_argument("--json", action="store_true", help="Output JSON instead of formatted text")
     parser_ctest.add_argument(
         "--interactive",
         action="store_true",
@@ -609,7 +914,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Subcommand: stats
     subparsers.add_parser(
-        "stats", help="Display weakness log and session statistics"
+        "stats", help="Display vocab progress, weakness log, and session statistics"
     )
 
     return parser
@@ -620,7 +925,11 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    if args.command == "ctest":
+    if args.command == "today":
+        cmd_today(args)
+    elif args.command == "record-vocab":
+        cmd_record_vocab(args)
+    elif args.command == "ctest":
         cmd_ctest(args)
     elif args.command == "new-session":
         cmd_new_session(args)
