@@ -7,6 +7,9 @@ from scripts.drill import (
     count_response_words,
     record_missed_vocab,
     create_session_file,
+    load_weakness_log,
+    record_correct_vocab,
+    mark_day_completed,
 )
 
 
@@ -57,6 +60,67 @@ class TestDrillCLI(unittest.TestCase):
             content = out_path.read_text(encoding="utf-8")
             self.assertIn("## ✍️ My Response", content)
             self.assertIn("Prof. Lee", content)
+
+    def test_load_weakness_log_backward_compatible_defaults(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "my_weakness_log.json"
+            legacy = {
+                "missed_vocab": [
+                    {
+                        "word": "assuage",
+                        "meaning_ko": "완화하다",
+                        "error_count": 2,
+                        "last_missed": "2026-11-09",
+                    }
+                ],
+                "expression_upgrades": [],
+            }
+            log_path.write_text(json.dumps(legacy), encoding="utf-8")
+            loaded = load_weakness_log(log_path)
+            self.assertEqual(loaded["vocab_progress"]["current_day"], 1)
+            self.assertEqual(loaded["vocab_progress"]["completed_days"], [])
+            self.assertIsNone(loaded["vocab_progress"]["last_studied"])
+            self.assertEqual(loaded["missed_vocab"][0]["streak"], 0)
+            self.assertFalse(loaded["missed_vocab"][0]["mastered"])
+            self.assertEqual(loaded["missed_vocab"][0]["section"], "")
+
+    def test_record_correct_vocab_graduates_at_two_and_missed_resets(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "my_weakness_log.json"
+            record_missed_vocab(log_path, "assuage", "완화하다", "2026-11-20", section="band6")
+
+            d1 = record_correct_vocab(log_path, "assuage")
+            self.assertEqual(d1["missed_vocab"][0]["streak"], 1)
+            self.assertFalse(d1["missed_vocab"][0]["mastered"])
+
+            d2 = record_correct_vocab(log_path, "assuage")
+            self.assertEqual(d2["missed_vocab"][0]["streak"], 2)
+            self.assertTrue(d2["missed_vocab"][0]["mastered"])
+
+            # Missing a graduated word re-activates it and resets streak
+            d3 = record_missed_vocab(log_path, "assuage", "완화하다", "2026-11-21", section="band6")
+            self.assertEqual(d3["missed_vocab"][0]["error_count"], 2)
+            self.assertEqual(d3["missed_vocab"][0]["streak"], 0)
+            self.assertFalse(d3["missed_vocab"][0]["mastered"])
+            self.assertEqual(d3["missed_vocab"][0]["section"], "band6")
+
+    def test_mark_day_completed_advances_current_day(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "my_weakness_log.json"
+            d1 = mark_day_completed(log_path, day=1, max_day=300, today_iso="2026-11-20")
+            self.assertEqual(d1["vocab_progress"]["completed_days"], [1])
+            self.assertEqual(d1["vocab_progress"]["current_day"], 2)
+            self.assertEqual(d1["vocab_progress"]["last_studied"], "2026-11-20")
+
+            # Completing day 3 while day 2 is uncompleted keeps current_day at 2
+            d2 = mark_day_completed(log_path, day=3, max_day=300, today_iso="2026-11-20")
+            self.assertEqual(d2["vocab_progress"]["completed_days"], [1, 3])
+            self.assertEqual(d2["vocab_progress"]["current_day"], 2)
+
+            # Completing day 2 advances current_day past 3 to 4
+            d3 = mark_day_completed(log_path, day=2, max_day=300, today_iso="2026-11-21")
+            self.assertEqual(d3["vocab_progress"]["completed_days"], [1, 2, 3])
+            self.assertEqual(d3["vocab_progress"]["current_day"], 4)
 
 
 if __name__ == "__main__":

@@ -76,38 +76,100 @@ def count_response_words(markdown_text: str) -> int:
     return len(words)
 
 
+DEFAULT_VOCAB_PROGRESS: Dict[str, Any] = {
+    "current_day": 1,
+    "completed_days": [],
+    "last_studied": None,
+}
+
+
+def load_weakness_log(log_path: Path) -> Dict[str, Any]:
+    """Load weakness log JSON safely with backward-compatible defaults."""
+    log_path = Path(log_path)
+    data: Dict[str, Any] = {
+        "missed_vocab": [],
+        "expression_upgrades": [],
+        "vocab_progress": dict(DEFAULT_VOCAB_PROGRESS),
+    }
+    if log_path.exists():
+        try:
+            loaded = json.loads(log_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                data = loaded
+        except Exception:
+            pass
+
+    if not isinstance(data.get("missed_vocab"), list):
+        data["missed_vocab"] = []
+    if not isinstance(data.get("expression_upgrades"), list):
+        data["expression_upgrades"] = []
+
+    normalized_missed: List[Dict[str, Any]] = []
+    for item in data["missed_vocab"]:
+        if not isinstance(item, dict) or not item.get("word"):
+            continue
+        item.setdefault("meaning_ko", "")
+        item.setdefault("section", "")
+        item.setdefault("error_count", 1)
+        item.setdefault("last_missed", "")
+        item.setdefault("streak", 0)
+        item.setdefault("mastered", False)
+        normalized_missed.append(item)
+    data["missed_vocab"] = normalized_missed
+
+    progress = data.get("vocab_progress")
+    if not isinstance(progress, dict):
+        progress = {}
+    completed = progress.get("completed_days")
+    if not isinstance(completed, list):
+        completed = []
+    clean_completed = sorted({int(d) for d in completed if isinstance(d, int) and d >= 1})
+    current_day = progress.get("current_day", 1)
+    if not isinstance(current_day, int) or current_day < 1:
+        current_day = 1
+    data["vocab_progress"] = {
+        "current_day": current_day,
+        "completed_days": clean_completed,
+        "last_studied": progress.get("last_studied"),
+    }
+    return data
+
+
+def save_weakness_log(log_path: Path, data: Dict[str, Any]) -> None:
+    """Persist weakness log JSON cleanly in UTF-8."""
+    log_path = Path(log_path)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def record_missed_vocab(
-    log_path: Path, word: str, meaning_ko: str, today_iso: str
+    log_path: Path,
+    word: str,
+    meaning_ko: str,
+    today_iso: str,
+    section: str = "",
 ) -> Dict[str, Any]:
     """Record a missed vocabulary word into the weakness JSON log.
 
-    If word exists (case-insensitive), increments error_count and updates last_missed.
-    Otherwise appends a new entry.
+    If word exists (case-insensitive), increments error_count, resets streak/mastered,
+    and updates last_missed. Otherwise appends a new entry.
     """
-    log_path = Path(log_path)
-    data: Dict[str, Any] = {"missed_vocab": [], "expression_upgrades": []}
-
-    if log_path.exists():
-        try:
-            content = log_path.read_text(encoding="utf-8")
-            loaded = json.loads(content)
-            if isinstance(loaded, dict):
-                data = loaded
-                if "missed_vocab" not in data or not isinstance(data["missed_vocab"], list):
-                    data["missed_vocab"] = []
-                if "expression_upgrades" not in data:
-                    data["expression_upgrades"] = []
-        except Exception:
-            data = {"missed_vocab": [], "expression_upgrades": []}
-
+    data = load_weakness_log(log_path)
     target_word = word.strip().lower()
     found = False
     for item in data["missed_vocab"]:
         if item.get("word", "").strip().lower() == target_word:
             item["error_count"] = item.get("error_count", 0) + 1
             item["last_missed"] = today_iso
+            item["streak"] = 0
+            item["mastered"] = False
             if meaning_ko and not item.get("meaning_ko"):
-                item["meaning_ko"] = meaning_ko
+                item["meaning_ko"] = meaning_ko.strip()
+            if section and not item.get("section"):
+                item["section"] = section.strip()
             found = True
             break
 
@@ -116,16 +178,58 @@ def record_missed_vocab(
             {
                 "word": word.strip(),
                 "meaning_ko": meaning_ko.strip(),
+                "section": section.strip(),
                 "error_count": 1,
                 "last_missed": today_iso,
+                "streak": 0,
+                "mastered": False,
             }
         )
 
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    log_path.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    save_weakness_log(log_path, data)
+    return data
+
+
+def record_correct_vocab(log_path: Path, word: str) -> Dict[str, Any]:
+    """Increment recall streak for an active missed word and graduate at streak >= 2."""
+    data = load_weakness_log(log_path)
+    target_word = word.strip().lower()
+    changed = False
+    for item in data["missed_vocab"]:
+        if item.get("word", "").strip().lower() == target_word and not item.get("mastered", False):
+            new_streak = int(item.get("streak", 0)) + 1
+            item["streak"] = new_streak
+            if new_streak >= 2:
+                item["mastered"] = True
+            changed = True
+            break
+
+    if changed or not Path(log_path).exists():
+        save_weakness_log(log_path, data)
+    return data
+
+
+def mark_day_completed(
+    log_path: Path, day: int, max_day: int, today_iso: str
+) -> Dict[str, Any]:
+    """Record day completion and advance current_day to the lowest uncompleted day."""
+    data = load_weakness_log(log_path)
+    progress = data["vocab_progress"]
+    completed = set(progress.get("completed_days", []))
+    if day >= 1:
+        completed.add(day)
+    progress["completed_days"] = sorted(completed)
+    progress["last_studied"] = today_iso
+
+    safe_max = max(1, max_day)
+    next_day = safe_max
+    for candidate in range(1, safe_max + 1):
+        if candidate not in completed:
+            next_day = candidate
+            break
+    progress["current_day"] = next_day
+
+    save_weakness_log(log_path, data)
     return data
 
 
