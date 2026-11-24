@@ -10,6 +10,12 @@ This skill administers the **2026 Revised TOEFL iBT `Take an Interview`** simula
 
 ---
 
+## Repository Resolution
+- Prefer the current working directory (`./`) when `data/prompt_bank.json` and `scripts/drill.py` are present (preserving work-PC `git clone` portability).
+- When invoked globally from another workspace on the home PC, resolve `data/`, `sessions/`, and `scripts/drill.py` under `~/toefl-agent-studio` (`C:\Users\dongwoo\toefl-agent-studio`).
+
+---
+
 ## The 2026 `Take an Interview` Format
 - **Structure**: 4 sequential conversational questions centered on a realistic academic or workplace theme.
 - **Preparation Time**: **0 seconds** (instant response required).

@@ -41,7 +41,7 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 | Time Window | Duration | Drill Type | Method / Tool |
 | :--- | :---: | :--- | :--- |
-| **09:00 – 09:05** | 5 min | **Morning Vocab Warmup** | Trigger `$toefl-vocab` or run `python scripts/drill.py ctest --count 5`. |
+| **09:00 – 09:10** | 10 min | **Morning Vocab Warmup** | Trigger `$toefl-vocab` (20 fresh + up to 5 review words) or run `python scripts/drill.py today` / `python scripts/drill.py ctest --count 20`. |
 | **12:40 – 12:55** | 15 min | **Silent Speaking Interview** | Trigger `$toefl-speaking` for 4 sequential speed-typing questions (0s prep). |
 | **17:30 – 17:45** | 15 min | **Afternoon Writing Drill** | Run `python scripts/drill.py new-session --type email` (7 min) or `--type discussion` (10 min), draft, check with `scripts/drill.py check`, and request AI feedback via `$toefl-writing`. |
 
@@ -51,15 +51,28 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 All commands use only the Python standard library:
 
-### 1. Complete the Words Vocabulary Quiz (`ctest`)
-Generates 2026 iBT in-context spelling fill-ins (prioritizing previously missed words from `data/my_weakness_log.json`):
+### 1. Daily Vocabulary Bundle & State Sync (`today`, `record-vocab`)
+Fetches today's 20 tiered fresh words (`core`, `band5`, `band6`) plus up to 5 active review words from `data/my_weakness_log.json`, and atomically logs drill outcomes:
 ```bash
-python scripts/drill.py ctest --count 5
-# Or specify a target day:
-python scripts/drill.py ctest --day 1 --count 5
+# View today's 20 fresh + up to 5 review words (supports --day N, --section core|band5|band6, --json)
+python scripts/drill.py today
+python scripts/drill.py today --json
+
+# Record missed/passed words and mark the day completed
+python scripts/drill.py record-vocab --missed <word1> --passed <rev1> --complete-day 1
 ```
 
-### 2. Create a Timed Writing Worksheet (`new-session`)
+### 2. Complete the Words Vocabulary Quiz (`ctest`)
+Generates 2026 iBT in-context spelling fill-ins (prioritizing previously missed words from `data/my_weakness_log.json`, default `--count 20`):
+```bash
+python scripts/drill.py ctest --count 20
+# Filter by tier, target day, or drill only active missed review words:
+python scripts/drill.py ctest --section band5 --count 20
+python scripts/drill.py ctest --day 1 --section core --count 20
+python scripts/drill.py ctest --review --count 20
+```
+
+### 3. Create a Timed Writing Worksheet (`new-session`)
 Generates a timestamped practice file in `sessions/`:
 ```bash
 # Task 1: Write an Email (7 minutes, 80-140 words, 3 bullets)
@@ -72,14 +85,14 @@ python scripts/drill.py new-session --type discussion
 python scripts/drill.py new-session --type interview
 ```
 
-### 3. Verify Word Count and Timing (`check`)
+### 4. Verify Word Count and Timing (`check`)
 Inspects your response under `## ✍️ My Response` and records stats to the file metadata:
 ```bash
 python scripts/drill.py check --file sessions/YYYY-MM-DD_email_email_01.md
 ```
 
-### 4. View Cumulative Weakness Statistics (`stats`)
-Summarizes completed sessions, top 10 missed vocabulary words, and recent native expression upgrades:
+### 5. View Cumulative Weakness Statistics (`stats`)
+Summarizes daily vocab progress (`Day X / 300`, 6,000-word tier breakdown), completed sessions, top 10 missed vocabulary words, and recent native expression upgrades:
 ```bash
 python scripts/drill.py stats
 ```
@@ -90,7 +103,7 @@ python scripts/drill.py stats
 
 When interacting with Antigravity / Claude / Gemini inside your IDE:
 
-- **`$toefl-vocab`**: Conducts 3-phase warmup (`Complete the Words` $\rightarrow$ Synonym Match $\rightarrow$ 1-Sentence Collocation).
+- **`$toefl-vocab`**: Conducts daily 20-word (+ up to 5 review) 3-round section mini-batches (`Core` $\rightarrow$ `Band 5.0` $\rightarrow$ `Band 6.0` with `Complete the Words` + Synonym Match) followed by Collocation Production via `today --json` and `record-vocab`.
 - **`$toefl-speaking`**: Acts as the dynamic 2026 interviewer, presenting **one question at a time** (Q1 $\rightarrow$ Q2 $\rightarrow$ Q3 $\rightarrow$ Q4), grading on Band 1.0–6.0, generating a side-by-side comparison table, and logging top 3 upgrades.
 - **`$toefl-writing`**: Audits 3 prompt bullet points, calculates word count, provides `diff`-block corrections, crafts a Band 5.5+ model rewrite preserving your ideas, and logs upgrades to `data/my_weakness_log.json`.
 
@@ -119,11 +132,11 @@ toefl-agent-studio/
 ├── .gitignore                       # Excludes sessions/ and local weakness logs
 ├── .agents/
 │   └── skills/
-│       ├── toefl-vocab/SKILL.md     # 5-min vocab warmup & spelling drill
+│       ├── toefl-vocab/SKILL.md     # 20-word 3-section vocab & spelling drill
 │       ├── toefl-speaking/SKILL.md  # 4-question speed-typing interview
 │       └── toefl-writing/SKILL.md   # Email & Academic Discussion coach
 ├── data/
-│   ├── vocab_seed.json              # Curated TOEFL academic vocabulary DB
+│   ├── vocab_seed.json              # 6,000+ tiered academic words across 300 days (Core, Band 5.0, Band 6.0)
 │   ├── prompt_bank.json             # 2026 Revised writing & speaking prompts
 │   └── my_weakness_log.json         # (Runtime) Auto-accumulated errors & upgrades
 ├── sessions/
@@ -131,7 +144,7 @@ toefl-agent-studio/
 ├── scripts/
 │   └── drill.py                     # Zero-dependency CLI trainer
 └── tests/
-    ├── test_seed_data.py            # Validates JSON database schema
-    ├── test_drill.py                # Tests CLI helper functions
-    └── test_skills_integrity.py     # Verifies skills frontmatter & integrity
+    ├── test_seed_data.py            # Validates 6,000-word / 300-day JSON schema
+    ├── test_drill.py                # Tests daily bundle, ctest, record-vocab & CLI helpers
+    └── test_skills_integrity.py     # Verifies skills, docs & path-fallback contracts
 ```

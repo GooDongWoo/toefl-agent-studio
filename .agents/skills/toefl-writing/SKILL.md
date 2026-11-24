@@ -15,6 +15,12 @@ All training takes place directly inside markdown session worksheets (`sessions/
 
 ---
 
+## Repository Resolution
+- Prefer the current working directory (`./`) when `data/prompt_bank.json` and `scripts/drill.py` are present (preserving work-PC `git clone` portability).
+- When invoked globally from another workspace on the home PC, resolve `data/`, `sessions/`, and `scripts/drill.py` under `~/toefl-agent-studio` (`C:\Users\dongwoo\toefl-agent-studio`).
+
+---
+
 ## 2026 Writing Tasks & ETS Rubric Standards
 
 ### 1. Write an Email (Task 1)

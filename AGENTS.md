@@ -47,7 +47,7 @@ Route each drill session to its dedicated skill workflow located in `.agents/ski
 
 | Skill Invocation | Skill Path | Primary Purpose & Mode |
 | :--- | :--- | :--- |
-| `$toefl-vocab` | `.agents/skills/toefl-vocab/SKILL.md` | 5–10 min morning warmup: `Complete the Words` spelling fill-in, academic synonym matching, 1-sentence collocation drill, and review of `data/my_weakness_log.json`. |
+| `$toefl-vocab` | `.agents/skills/toefl-vocab/SKILL.md` | Daily 20 fresh words (Core / Band 5.0 / Band 6.0) + up to 5 active reviews: 3-round section mini-batches (`Complete the Words` + synonym matching), collocation production, and state sync via `today --json` + `record-vocab` into `data/my_weakness_log.json`. |
 | `$toefl-speaking` | `.agents/skills/toefl-speaking/SKILL.md` | Silent office `Take an Interview` drill: sequential 4-question speed-typing (0 prep, 60s limit per question), rubric grading, side-by-side comparison table, and logging top 3 upgrades to `data/my_weakness_log.json`. |
 | `$toefl-writing` | `.agents/skills/toefl-writing/SKILL.md` | `Write an Email` (7 min, 80–140 words), `Academic Discussion` (10 min, 100+ words), and `Build a Sentence`: worksheet management via `scripts/drill.py`, word count validation, diff-based grammar corrections, Band 5.5+ rewrites, and weakness logging. |
 
@@ -99,9 +99,17 @@ The repository includes a zero-dependency CLI tool built with the Python standar
   ```bash
   python scripts/drill.py check --file sessions/YYYY-MM-DD_session.md
   ```
+- **Fetch daily 20-word vocabulary bundle (20 fresh + up to 5 active reviews)**:
+  ```bash
+  python scripts/drill.py today --json
+  ```
+- **Record missed/passed vocabulary & day completion**:
+  ```bash
+  python scripts/drill.py record-vocab --missed <word1> ... --passed <rev1> ... --complete-day N
+  ```
 - **Interactive vocabulary drill**:
   ```bash
-  python scripts/drill.py ctest --count 5
+  python scripts/drill.py ctest --count 20 --section band5
   ```
 - **View cumulative progress & weakness statistics**:
   ```bash
