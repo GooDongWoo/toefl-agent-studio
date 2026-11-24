@@ -12,7 +12,7 @@ This skill administers the **2026 Revised TOEFL iBT `Take an Interview`** simula
 
 ## Repository Resolution
 - Prefer the current working directory (`./`) when `data/prompt_bank.json` and `scripts/drill.py` are present (preserving work-PC `git clone` portability).
-- When invoked globally from another workspace on the home PC, resolve `data/`, `sessions/`, and `scripts/drill.py` under `~/toefl-agent-studio` (`C:\Users\dongwoo\toefl-agent-studio`).
+- When invoked globally from another workspace on the home PC, resolve `data/`, `sessions/`, and `scripts/drill.py` under `~/toefl-agent-studio` (`C:\Users\dongwoo\toefl-agent-studio`), and either `cd` there before running CLI commands or pass the full path `python C:\Users\dongwoo\toefl-agent-studio\scripts\drill.py ...`.
 
 ---
 

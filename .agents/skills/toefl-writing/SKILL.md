@@ -17,7 +17,7 @@ All training takes place directly inside markdown session worksheets (`sessions/
 
 ## Repository Resolution
 - Prefer the current working directory (`./`) when `data/prompt_bank.json` and `scripts/drill.py` are present (preserving work-PC `git clone` portability).
-- When invoked globally from another workspace on the home PC, resolve `data/`, `sessions/`, and `scripts/drill.py` under `~/toefl-agent-studio` (`C:\Users\dongwoo\toefl-agent-studio`).
+- When invoked globally from another workspace on the home PC, resolve `data/`, `sessions/`, and `scripts/drill.py` under `~/toefl-agent-studio` (`C:\Users\dongwoo\toefl-agent-studio`), and either `cd` there before running CLI commands or pass the full path `python C:\Users\dongwoo\toefl-agent-studio\scripts\drill.py ...`.
 
 ---
 
@@ -54,6 +54,9 @@ python scripts/drill.py new-session --type email
 
 # For Academic Discussion practice:
 python scripts/drill.py new-session --type discussion
+
+# For Build a Sentence practice:
+python scripts/drill.py new-session --type sentence
 ```
 This creates a timestamped markdown file in `sessions/` containing the scenario, recipient/professor question, mandatory requirements, and a dedicated `## ✍️ My Response` section.
 
