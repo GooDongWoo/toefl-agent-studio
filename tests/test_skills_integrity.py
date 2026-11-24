@@ -23,6 +23,23 @@ class TestSkillsIntegrity(unittest.TestCase):
         for required_token in ("today --json", "record-vocab", "core", "band5", "band6", "20"):
             self.assertIn(required_token, vocab_text)
 
+    def test_toefl_vocab_three_phase_and_feedback_contracts(self):
+        vocab_text = (ROOT / ".agents" / "skills" / "toefl-vocab" / "SKILL.md").read_text(encoding="utf-8")
+        for token in (
+            "HARD-GATE",
+            "Phase 1",
+            "Phase 2",
+            "Phase 3",
+            "예문 1",
+            "예문 2",
+            "meaning_ko",
+            "expression_upgrades",
+            "vocab_collocation",
+            "4–5 mini-groups",
+            "2–3 original academic sentences",
+        ):
+            self.assertIn(token, vocab_text)
+
 
 if __name__ == "__main__":
     unittest.main()
