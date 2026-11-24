@@ -30,7 +30,7 @@ cd toefl-agent-studio
 ```
 
 ### 2. Verify System Integrity
-Run the built-in unit test suite (7 tests, zero dependencies):
+Run the built-in unit test suite (15 tests, zero dependencies):
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
@@ -103,7 +103,7 @@ python scripts/drill.py stats
 
 When interacting with Antigravity / Claude / Gemini inside your IDE:
 
-- **`$toefl-vocab`**: Conducts daily 20-word (+ up to 5 review) 3-round section mini-batches (`Core` $\rightarrow$ `Band 5.0` $\rightarrow$ `Band 6.0` with `Complete the Words` + Synonym Match) followed by Collocation Production via `today --json` and `record-vocab`.
+- **`$toefl-vocab`**: Conducts daily 20+N (`20` fresh across `Core` / `Band 5.0` / `Band 6.0` + up to `5` review) strictly separated 3-phase drills (`Phase 1: Complete the Words` with full per-word meaning & 2 extra examples $\rightarrow$ `Phase 2: 5-word-grouped Synonym Match` $\rightarrow$ `Phase 3: 2–3 Sentence Collocation Production`) via `today --json` and `record-vocab`.
 - **`$toefl-speaking`**: Acts as the dynamic 2026 interviewer, presenting **one question at a time** (Q1 $\rightarrow$ Q2 $\rightarrow$ Q3 $\rightarrow$ Q4), grading on Band 1.0–6.0, generating a side-by-side comparison table, and logging top 3 upgrades.
 - **`$toefl-writing`**: Audits 3 prompt bullet points, calculates word count, provides `diff`-block corrections, crafts a Band 5.5+ model rewrite preserving your ideas, and logs upgrades to `data/my_weakness_log.json`.
 
@@ -132,7 +132,7 @@ toefl-agent-studio/
 ├── .gitignore                       # Excludes sessions/ and local weakness logs
 ├── .agents/
 │   └── skills/
-│       ├── toefl-vocab/SKILL.md     # 20-word 3-section vocab & spelling drill
+│       ├── toefl-vocab/SKILL.md     # 20+N-word 3-phase vocab, extra-example & spelling drill
 │       ├── toefl-speaking/SKILL.md  # 4-question speed-typing interview
 │       └── toefl-writing/SKILL.md   # Email & Academic Discussion coach
 ├── data/

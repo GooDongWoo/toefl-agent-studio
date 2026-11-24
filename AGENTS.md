@@ -47,7 +47,7 @@ Route each drill session to its dedicated skill workflow located in `.agents/ski
 
 | Skill Invocation | Skill Path | Primary Purpose & Mode |
 | :--- | :--- | :--- |
-| `$toefl-vocab` | `.agents/skills/toefl-vocab/SKILL.md` | Daily 20 fresh words (Core / Band 5.0 / Band 6.0) + up to 5 active reviews: 3-round section mini-batches (`Complete the Words` + synonym matching), collocation production, and state sync via `today --json` + `record-vocab` into `data/my_weakness_log.json`. |
+| `$toefl-vocab` | `.agents/skills/toefl-vocab/SKILL.md` | Daily 20 fresh words (Core / Band 5.0 / Band 6.0) + up to 5 active reviews across 3 strict sequential phases (`Phase 1: Complete the Words` with full per-word meaning + 2 extra examples $\rightarrow$ `Phase 2: 5-word-grouped Synonym Match` $\rightarrow$ `Phase 3: 2–3 Sentence Collocation Production`), synced via `today --json` + `record-vocab` into `data/my_weakness_log.json`. |
 | `$toefl-speaking` | `.agents/skills/toefl-speaking/SKILL.md` | Silent office `Take an Interview` drill: sequential 4-question speed-typing (0 prep, 60s limit per question), rubric grading, side-by-side comparison table, and logging top 3 upgrades to `data/my_weakness_log.json`. |
 | `$toefl-writing` | `.agents/skills/toefl-writing/SKILL.md` | `Write an Email` (7 min, 80–140 words), `Academic Discussion` (10 min, 100+ words), and `Build a Sentence`: worksheet management via `scripts/drill.py`, word count validation, diff-based grammar corrections, Band 5.5+ rewrites, and weakness logging. |
 
@@ -55,7 +55,7 @@ Route each drill session to its dedicated skill workflow located in `.agents/ski
 
 ## 4. Standard Feedback & Output Structure
 
-Whenever reviewing user submissions, follow this strict response pattern:
+Whenever reviewing Writing, Speaking, or `$toefl-vocab` Phase 3 sentence submissions, follow this strict response pattern (for `$toefl-vocab` Phase 1 and Phase 2 drills, follow the phase-by-phase grading & example-review format in `.agents/skills/toefl-vocab/SKILL.md`):
 
 ### 1. Score Summary & Band Rating
 - **Overall Band**: e.g., `Band 5.0 / 6.0 (Estimated Section Score: 25 / 30)`
